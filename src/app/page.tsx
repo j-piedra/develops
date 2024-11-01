@@ -3,30 +3,24 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import CarService from "./services/CarService";
 import Link from "next/link";
+import { getAllYears } from "./utils/Utils";
 
 export default function Home() {
   const [vehicleMakes, setVehicleMakes] = useState<[]>([]);
-  const [vehicleMakeSelected, setVehicleMakeSelected] = useState<number>();
-  const [selectedYear, setSelectedYear] = useState<string>("");
-
-  console.log(vehicleMakeSelected);
-
-  const startYear = 2005;
-  const currentYear = new Date().getFullYear();
-  const years = Array.from(
-    { length: currentYear - startYear + 1 },
-    (_, i) => startYear + i
-  );
+  const [makeId, setMakeId] = useState<number>();
+  const [year, setYear] = useState<string>("");
+  
+  const years = getAllYears();
 
   useEffect(() => {
     CarService.getVehicleMakes().then((r) => setVehicleMakes(r));
   }, []);
 
   const handleChangeVehicleMake = (e) => {
-    setVehicleMakeSelected(e.target.value);
+    setMakeId(e.target.value);
   };
-  const hanldeChangeYear = (e) => {
-    setSelectedYear(e.target.value);
+  const handleChangeYear = (e) => {
+    setYear(e.target.value);
   };
 
   return (
@@ -44,7 +38,7 @@ export default function Home() {
         <>
           <p>Vehicle Make: </p>
           <select
-            value={vehicleMakeSelected}
+            value={makeId}
             onChange={handleChangeVehicleMake}
           >
             {vehicleMakes?.map((vm: unknown) => {
@@ -62,8 +56,8 @@ export default function Home() {
           <p>Year: </p>
 
           <select
-            value={selectedYear}
-            onChange={hanldeChangeYear}
+            value={year}
+            onChange={handleChangeYear}
           >
             {years.map((y, i) => {
               return (
@@ -77,10 +71,12 @@ export default function Home() {
             })}
           </select>
           <Link
-            style={{
-              pointerEvents: true ? "auto" : "none",
+            style={year && makeId ? {} : {
+              cursor: "not-allowed",
+              color: "gray",
+              pointerEvents: "none",
             }}
-            href="/jo"
+            href={`/result/${makeId}/${year}`}
           >
             Next
           </Link>
